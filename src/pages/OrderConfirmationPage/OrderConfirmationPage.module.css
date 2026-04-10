@@ -164,10 +164,15 @@
   line-height: 1.7;
 }
 
-.cardInfo {
+.contactList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.contactRow {
   font-size: 0.9rem;
   color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
 }
 
 .continueBtn {

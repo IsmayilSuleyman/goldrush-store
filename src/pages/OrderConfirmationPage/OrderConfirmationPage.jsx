@@ -72,19 +72,23 @@ export default function OrderConfirmationPage() {
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>{t('confirmation.shippingTo')}</h3>
           <p className={styles.address}>
-            {order.shipping.fullName}<br />
+            {order.contact.fullName}<br />
             {order.shipping.address}<br />
             {order.shipping.city}, {order.shipping.postalCode}<br />
             {order.shipping.country}
           </p>
         </div>
 
-        {/* Payment */}
+        {/* How we'll reach you */}
         <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>{t('confirmation.paidWith')}</h3>
-          <p className={styles.cardInfo}>
-            {order.brand === 'visa' ? 'Visa' : 'Mastercard'} •••• {order.last4}
-          </p>
+          <h3 className={styles.sectionTitle}>{t('confirmation.contactVia')}</h3>
+          <div className={styles.contactList}>
+            <p className={styles.contactRow}>✉️ {order.contact.email}</p>
+            <p className={styles.contactRow}>📞 {order.contact.phone}</p>
+            {order.contact.whatsapp && <p className={styles.contactRow}>💬 WhatsApp: {order.contact.whatsapp}</p>}
+            {order.contact.telegram && <p className={styles.contactRow}>✈️ Telegram: {order.contact.telegram}</p>}
+            {order.contact.otherContact && <p className={styles.contactRow}>🔗 {order.contact.otherContact}</p>}
+          </div>
         </div>
 
         <Link to="/" className={styles.continueBtn}>
