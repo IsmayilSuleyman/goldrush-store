@@ -54,13 +54,21 @@
   gap: 1rem;
 }
 
+.sectionHeader {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
 .sectionTitle {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 0.25rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--glass-border);
+}
+
+.sectionSubtitle {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
 }
 
 .grid2 {
@@ -87,6 +95,25 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.optionalTag {
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  margin-left: auto;
+}
+
+.contactIcon {
+  display: flex;
+  align-items: center;
+  color: var(--accent);
 }
 
 .input {
