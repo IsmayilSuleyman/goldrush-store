@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import emailjs from '@emailjs/browser';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 import {
@@ -12,6 +13,10 @@ import {
   validateEmail,
 } from '../../utils/cardValidation';
 import styles from './CheckoutPage.module.css';
+
+const EMAILJS_SERVICE_ID  = 'service_pqx48nr';
+const EMAILJS_TEMPLATE_ID = 'template_gck17u7';
+const EMAILJS_PUBLIC_KEY  = 'Q41GlKlgWj4MjnsIn';
 
 const VisaLogo = () => (
   <svg viewBox="0 0 48 16" width="48" height="16" aria-label="Visa">
@@ -120,26 +125,47 @@ export default function CheckoutPage() {
 
     setIsProcessing(true);
     submittingRef.current = true;
-    setTimeout(() => {
-      const order = {
-        id: 'GR-' + Date.now(),
-        items: items.map(i => ({ ...i })),
-        total: cartTotal,
-        contact: { email: form.email, phone: form.phone },
-        shipping: {
-          fullName: form.fullName,
-          address: form.address,
-          city: form.city,
-          postalCode: form.postalCode,
-          country: form.country,
-        },
-        notes: form.notes,
-        last4: form.cardNumber.replace(/\s/g, '').slice(-4),
-        brand: cardBrand,
-      };
-      clearCart();
-      navigate(`/order-confirmation/${order.id}`, { state: { order } });
-    }, 1800);
+
+    const order = {
+      id: 'GR-' + Date.now(),
+      items: items.map(i => ({ ...i })),
+      total: cartTotal,
+      contact: { email: form.email, phone: form.phone },
+      shipping: {
+        fullName: form.fullName,
+        address: form.address,
+        city: form.city,
+        postalCode: form.postalCode,
+        country: form.country,
+      },
+      notes: form.notes,
+      last4: form.cardNumber.replace(/\s/g, '').slice(-4),
+      brand: cardBrand,
+    };
+
+    const itemLines = order.items
+      .map(({ product, quantity }) => `• ${product.name} × ${quantity} — ${(product.price * quantity).toFixed(2)} ₼`)
+      .join('\n');
+
+    const templateParams = {
+      order_id:      order.id,
+      customer_name: form.fullName,
+      customer_email: form.email,
+      customer_phone: form.phone,
+      shipping_address: `${form.address}, ${form.city}, ${form.postalCode}, ${form.country}`,
+      items_list:    itemLines,
+      order_total:   `${cartTotal.toFixed(2)} ₼`,
+      card_info:     `${cardBrand === 'visa' ? 'Visa' : 'Mastercard'} •••• ${order.last4}`,
+      order_notes:   form.notes || '—',
+    };
+
+    emailjs
+      .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY)
+      .catch(() => {/* silent — order still goes through */})
+      .finally(() => {
+        clearCart();
+        navigate(`/order-confirmation/${order.id}`, { state: { order } });
+      });
   }
 
   function field(name, label, type = 'text', placeholder = '') {
