@@ -1,19 +1,15 @@
-import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 import products from '../../data/products';
 import styles from './ProductPage.module.css';
 
 export default function ProductPage() {
   const { id } = useParams();
-  const { addItem } = useCart();
   const { t } = useLanguage();
-  const [quantity, setQuantity] = useState(1);
-  const [added, setAdded] = useState(false);
 
   const product = products.find(p => p.id === Number(id));
+  const hasDiscount = product && typeof product.originalPrice === 'number' && product.originalPrice > product.price;
 
   if (!product) {
     return (
@@ -25,24 +21,6 @@ export default function ProductPage() {
       </div>
     );
   }
-
-  const handleAdd = () => {
-    addItem(product, quantity);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
-  };
-
-  const renderStars = (rating) => {
-    const stars = [];
-    const full = Math.floor(rating);
-    const hasHalf = rating % 1 >= 0.5;
-    for (let i = 0; i < 5; i++) {
-      if (i < full) stars.push(<span key={i} className={styles.starFull}>&#9733;</span>);
-      else if (i === full && hasHalf) stars.push(<span key={i} className={styles.starHalf}>&#9733;</span>);
-      else stars.push(<span key={i} className={styles.starEmpty}>&#9733;</span>);
-    }
-    return stars;
-  };
 
   return (
     <div className={styles.container}>
@@ -68,38 +46,13 @@ export default function ProductPage() {
         <div className={styles.details}>
           <span className={styles.category}>{product.category}</span>
           <h1 className={styles.name}>{product.name}</h1>
-          <div className={styles.stars}>
-            {renderStars(product.rating)}
-            <span className={styles.ratingText}>{product.rating}</span>
+          <div className={styles.priceWrap}>
+            {hasDiscount && <p className={styles.originalPrice}>{product.originalPrice.toFixed(2)}{"\u20BC"}</p>}
+            <p className={`${styles.price} ${hasDiscount ? styles.salePrice : ''}`}>{product.price.toFixed(2)}{"\u20BC"}</p>
           </div>
-          <p className={styles.price}>{product.price.toFixed(2)} ₼</p>
-          <p className={styles.stock}>{product.stock} {t('stock.inStock')}</p>
           <p className={styles.description}>{product.description}</p>
-
-          <div className={styles.actions}>
-            <div className={styles.quantity}>
-              <button
-                className={styles.qtyBtn}
-                onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                aria-label="Decrease quantity"
-              >
-                -
-              </button>
-              <span className={styles.qtyValue}>{quantity}</span>
-              <button
-                className={styles.qtyBtn}
-                onClick={() => setQuantity(q => q + 1)}
-                aria-label="Increase quantity"
-              >
-                +
-              </button>
-            </div>
-            <button
-              className={`${styles.addBtn} ${added ? styles.added : ''}`}
-              onClick={handleAdd}
-            >
-              {added ? t('productPage.added') : t('productPage.addToCart')}
-            </button>
+          <div className={styles.catalogueNote}>
+            {t('productPage.catalogueOnly')}
           </div>
         </div>
       </motion.div>
